@@ -390,11 +390,11 @@ class Distiller:
                 )  # (bs, seq_length, voc_size)
         else:
             s_logits, _, s_hidden_states = self.student(
-                input_ids=input_ids, attention_mask=None
+                input_ids=input_ids, attention_mask=None, return_dict=False
             )  # (bs, seq_length, voc_size)
             with torch.no_grad():
                 t_logits, _, t_hidden_states = self.teacher(
-                    input_ids=input_ids, attention_mask=None
+                    input_ids=input_ids, attention_mask=None, return_dict=False
                 )  # (bs, seq_length, voc_size)
         assert s_logits.size() == t_logits.size()
 

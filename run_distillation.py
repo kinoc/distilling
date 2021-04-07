@@ -151,6 +151,7 @@ def main():
     args = parser.parse_args()
     args.mlm = None
     args.alpha_mlm = 0.0
+    args.restrict_ce_to_mask = False
     train(args)
         
 if __name__ == "__main__":
