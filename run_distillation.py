@@ -27,14 +27,15 @@ def train(args):
     init_gpu_params(args)
     set_seed(args)
     if args.is_master:
-        if os.path.exists(args.dump_path):
+        if os.path.exists(args.dump_path):            
             if not args.force:
-                raise ValueError(
-                    f"Serialization dir {args.dump_path} already exists, but you have not precised wheter to overwrite it"
-                    "Use `--force` if you want to overwrite it"
-                )
+                logger.info(f"Overwrite flag --force is {args.force}")
+                import time
+                args.dump_path = f"{args.dump_path}_{str(time.time())}"
+                os.makedirs(args.dump_path)
             else:
                 shutil.rmtree(args.dump_path)
+
 
         if not os.path.exists(args.dump_path):
             os.makedirs(args.dump_path)
@@ -91,7 +92,7 @@ def train(args):
 
     # SANITY CHECKS #
     assert student.config.vocab_size == teacher.config.vocab_size
-    assert student.config.hidden_size == teacher.config.hidden_size
+#     assert student.config.hidden_size == teacher.config.hidden_size
 #     assert student.config.max_position_embeddings == teacher.config.max_position_embeddings
 
     # DISTILLER #
@@ -104,7 +105,7 @@ def train(args):
     
 def main():
     parser = argparse.ArgumentParser(description="Training")
-    parser.add_argument("--force", action="store_true", default=True, 
+    parser.add_argument("--force", action="store_true", default=False, 
                         help="Overwrite dump_path if it already exists.")
     parser.add_argument("--dump_path", type=str, required=True, 
                         help="The output directory (log, checkpoints, parameters, etc.)")
