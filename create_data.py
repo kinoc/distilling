@@ -42,7 +42,7 @@ def main():
             train_files = [data_args.train_files_path]
         else:
             train_files = [data_args.train_files_path+"/"+train_file
-                          for train_file in os.list_dir(data_args.train_files_path)]
+                          for train_file in os.listdir(data_args.train_files_path)]
         data_files["train"] = train_files
         
     if data_args.test_files_path is not None:
@@ -50,7 +50,7 @@ def main():
             test_files = [data_args.train_files_path]
         else:
             test_files = [data_args.test_files_path+"/"+test_file
-                         for test_file in os.list_dir(data_args.test_files_path)]
+                         for test_file in os.listdir(data_args.test_files_path)]
         data_files["test"] = test_files
 
     

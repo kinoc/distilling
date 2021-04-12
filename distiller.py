@@ -185,6 +185,7 @@ class Distiller:
             self.tensorboard = SummaryWriter(log_dir=os.path.join(self.dump_path, "log", "train"))
             self.tensorboard.add_text(tag="config/training", text_string=str(self.params), global_step=0)
             self.tensorboard.add_text(tag="config/student", text_string=str(self.student_config), global_step=0)
+            self.tensorboard.add_text(tag="config/teacher", text_string=str(self.teacher.config), global_step=0)
 
     def prepare_batch_mlm(self, batch):
         """
