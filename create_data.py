@@ -8,7 +8,7 @@ from typing import Optional
 from datasets import load_dataset
 
 import transformers
-from transformers import GPT2Tokenizer
+from transformers import GPT2Tokenizer,GPT2TokenizerFast
 from transformers.utils import check_min_version
 
 import argparse
@@ -56,8 +56,11 @@ def main():
     
     datasets = load_dataset('text', data_files=data_files)
     column_names = ['text']
-    tokenizer = GPT2Tokenizer.from_pretrained('EleutherAI/gpt-neo-1.3B', 
+    #tokenizer = GPT2Tokenizer.from_pretrained('EleutherAI/gpt-neo-1.3B', 
+    #                                          max_position_embeddings=data_args.max_seq_length)
+    tokenizer = GPT2TokenizerFast.from_pretrained('EleutherAI/gpt-neo-1.3B', 
                                               max_position_embeddings=data_args.max_seq_length)
+
     tokenizer.pad_token = tokenizer.eos_token
 
     max_seq_length = data_args.max_seq_length
@@ -82,7 +85,7 @@ def main():
         tokenized_datasets = datasets.map(
             tokenize_function,
             batched=True,
-            num_proc=data_args.preprocessing_num_workers,
+            num_proc=int(data_args.preprocessing_num_workers),
             remove_columns=[text_column_name],
             load_from_cache_file=not data_args.overwrite_cache,
         )
@@ -96,7 +99,7 @@ def main():
         tokenized_datasets = datasets.map(
             tokenize_function,
             batched=True,
-            num_proc=data_args.preprocessing_num_workers,
+            num_proc=int(data_args.preprocessing_num_workers),
             remove_columns=column_names,
             load_from_cache_file=not data_args.overwrite_cache,
         )
@@ -127,7 +130,7 @@ def main():
         tokenized_datasets = tokenized_datasets.map(
             group_texts,
             batched=True,
-            num_proc=data_args.preprocessing_num_workers,
+            num_proc=int(data_args.preprocessing_num_workers),
             load_from_cache_file=not data_args.overwrite_cache,
         )
 
