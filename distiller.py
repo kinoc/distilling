@@ -27,9 +27,11 @@ from torch.optim import AdamW
 from torch.utils.data import BatchSampler, DataLoader, RandomSampler
 from torch.utils.data.distributed import DistributedSampler
 from tqdm import tqdm
+from typing import Union
 
 from grouped_batch_sampler import GroupedBatchSampler, create_lengths_groups
 from lm_seqs_dataset import LmSeqsDataset
+from lazy_load_lm_seqs_dataset import LazyLmSeqsDataset
 from transformers import get_linear_schedule_with_warmup
 from utils import logger
 
@@ -42,7 +44,7 @@ except ImportError:
 
 class Distiller:
     def __init__(
-        self, params: dict, dataset: LmSeqsDataset, token_probs: torch.tensor, student: nn.Module, teacher: nn.Module
+        self, params: dict, dataset: Union[LmSeqsDataset, LazyLmSeqsDataset], token_probs: torch.tensor, student: nn.Module, teacher: nn.Module
     ):
         logger.info("Initializing Distiller")
         self.params = params
@@ -61,7 +63,7 @@ class Distiller:
         else:
             sampler = DistributedSampler(dataset)
 
-        if params.group_by_size:
+        if params.group_by_size and not params.train_on_large_dataset:
             groups = create_lengths_groups(lengths=dataset.lengths, k=params.max_model_input_size)
             sampler = GroupedBatchSampler(sampler=sampler, group_ids=groups, batch_size=params.batch_size)
         else:
