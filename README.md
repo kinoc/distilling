@@ -8,8 +8,5 @@ Experiments with distilling large language models.
 - alpha_cos : Linear weight for CosineEmbeddingLoss between student and teacher last layers hidden_states.(works only when the model hidden_size of student and teacher are same)
 
 # STEPS
-1. Use create_data.py to create a pickle file of containg the list of input_ids of the text corpus.
-2. Use run_distillation.py to start distillation training.
-
-
-
+1. Use create_data.py (for small dataset) to create a pickle of input_ids list or use create_data_for_large_dataset.py (for large dataset) to create shards of npy files.
+2. Use run_distillation.py to start distillation training. For training on large dataset set --train_on_large_dataset param.

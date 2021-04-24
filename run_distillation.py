@@ -9,6 +9,8 @@ import torch
 
 from distiller import Distiller
 from lm_seqs_dataset import LmSeqsDataset
+from lazy_load_lm_seqs_dataset import LazyLmSeqsDataset
+
 from transformers import (
     GPTNeoConfig,
     GPTNeoForCausalLM, 
@@ -73,9 +75,6 @@ def train(args):
     
     # pytorch DATASET #
     args.max_model_input_size = stu_architecture_config.max_position_embeddings
-    logger.info(f"Loading data from {args.data_file}")
-    with open(args.data_file, "rb") as fp:
-        data = pickle.load(fp)
     
     tokenizer = GPT2Tokenizer.from_pretrained(args.teacher_name)
     special_tok_ids = {"eos_token": tokenizer.eos_token,
@@ -83,7 +82,13 @@ def train(args):
                       "unk_token": tokenizer.unk_token}
     args.special_tok_ids = special_tok_ids
     
-    train_lm_seq_dataset = LmSeqsDataset(params=args, data=data)
+    if params.train_on_large_dataset:
+        train_lm_seq_dataset = LazyLmSeqsDataset(params=args)
+    else:
+        logger.info(f"Loading data from {args.data_file}")
+        with open(args.data_file, "rb") as fp:
+            data = pickle.load(fp)
+        train_lm_seq_dataset = LmSeqsDataset(params=args, data=data)
     logger.info(f"pytorch Dataset created.")
 
     # FREEZING #
@@ -107,10 +112,12 @@ def main():
     parser = argparse.ArgumentParser(description="Training")
     parser.add_argument("--force", action="store_true", default=False, 
                         help="Overwrite dump_path if it already exists.")
+    parser.add_argument("--train_on_large_dataset", action="store_true", default=False, 
+                        help="Train on large dataset(which cannot be loaded in memory)")
     parser.add_argument("--dump_path", type=str, required=True, 
                         help="The output directory (log, checkpoints, parameters, etc.)")
     parser.add_argument("--data_file", type=str, required=True,
-                        help="The binarized file (tokenized + tokens_to_ids) and grouped by sequence.")
+                        help="The pickle file or the folder containing npy saved files which is created using data create script.")
     parser.add_argument("--student_config", type=str, required=True,
                         help="Path to the student configuration.")
     parser.add_argument("--student_pretrained_weights", default=None, type=str, 
