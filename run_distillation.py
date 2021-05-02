@@ -82,7 +82,7 @@ def train(args):
                       "unk_token": tokenizer.unk_token}
     args.special_tok_ids = special_tok_ids
     
-    if params.train_on_large_dataset:
+    if args.train_on_large_dataset:
         train_lm_seq_dataset = LazyLmSeqsDataset(params=args)
     else:
         logger.info(f"Loading data from {args.data_file}")
